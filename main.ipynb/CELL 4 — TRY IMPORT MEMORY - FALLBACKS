@@ -1,0 +1,89 @@
+# Try importing memory modules or define fallback memory classes if not present.
+try:
+    from memory.memory_bank import MemoryBank
+    from memory.context_manager import ContextManager
+    print("Imported memory/ modules.")
+except Exception as e:
+    print("memory/ modules not found — using inline fallback memory.", str(e))
+
+    import json, os
+
+    class SessionState:
+        def __init__(self):
+            self.history = []
+            self.last_trends = None
+            self.last_prompt = None
+            self.last_score = None
+            self.last_feedback = None
+
+        def add_history(self, role: str, message: str):
+            self.history.append({"role": role, "message": message})
+
+        def get_history(self):
+            return self.history
+
+        def clear(self):
+            self.history = []
+            self.last_trends = None
+            self.last_prompt = None
+            self.last_score = None
+            self.last_feedback = None
+
+    MEMORY_FILE = "memory_storage.json"
+    if not os.path.exists(MEMORY_FILE):
+        with open(MEMORY_FILE, "w") as f:
+            json.dump({"top_concepts": [], "top_prompts": []}, f)
+
+    class LongTermMemory:
+        def __init__(self):
+            pass
+        def load(self):
+            with open(MEMORY_FILE, "r") as f:
+                return json.load(f)
+        def save(self, data):
+            with open(MEMORY_FILE, "w") as f:
+                json.dump(data, f, indent=2)
+        def add_top_concept(self, concept: str):
+            mem = self.load()
+            if concept not in mem["top_concepts"]:
+                mem["top_concepts"].append(concept)
+            self.save(mem)
+        def add_top_prompt(self, prompt: str, score: int):
+            mem = self.load()
+            mem["top_prompts"].append({"prompt": prompt, "score": score})
+            mem["top_prompts"] = mem["top_prompts"][-50:]
+            self.save(mem)
+
+    class MemoryBank:
+        def __init__(self):
+            self.session = SessionState()
+            self.long_term = LongTermMemory()
+        def store_prompt(self, prompt: str, score: int):
+            if score >= 8:
+                self.long_term.add_top_prompt(prompt, score)
+        def store_concept(self, concept: str):
+            self.long_term.add_top_concept(concept)
+        def compact_history(self):
+            compacted = []
+            for entry in self.session.history:
+                if any(key in entry["message"].lower() for key in ["trend", "prompt", "score"]):
+                    compacted.append(entry)
+            self.session.history = compacted[:10]
+        def reset_session(self):
+            self.session.clear()
+
+    class ContextManager:
+        def __init__(self, memory_bank):
+            self.memory = memory_bank
+        def build_context(self, task_description: str):
+            session_history = self.memory.session.get_history()
+            long_term = self.memory.long_term.load()
+            top_concepts = long_term.get("top_concepts", [])[-5:]
+            top_prompts = long_term.get("top_prompts", [])[-5:]
+            context = {
+                "task": task_description,
+                "session_history": session_history,
+                "past_concepts": top_concepts,
+                "top_prompts": top_prompts,
+            }
+            return context
