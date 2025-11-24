@@ -1,0 +1,7 @@
+# Display long-term memory snapshot
+try:
+    long_mem = memory.long_term.load()
+    print("Long-term memory snapshot:")
+    pprint(long_mem)
+except Exception as e:
+    print("No long-term memory present yet or unable to load:", e)
