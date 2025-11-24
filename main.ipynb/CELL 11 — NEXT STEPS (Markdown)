@@ -1,0 +1,6 @@
+## Next steps you can do after pasting this notebook
+1. Add the `tools/` files I prepared earlier to the `tools/` folder for cleaner organization.
+2. Add the `memory/` files I prepared earlier to the `memory/` folder.
+3. Optionally create an `agents/` folder with small class files (not required; notebook already contains agent code).
+4. Improve the evaluation function or add more style presets in `tools/style_tool.py`.
+5. Add a small UI with Gradio (locally) for demonstration; note that Kaggle notebooks should remain API-free.
