@@ -1,0 +1,6 @@
+readme_snippet = """
+# How to run
+Open `main.ipynb` and run all cells in order. 
+The demo saves `demo/demo_output.json` which contains the generated prompts, evaluations, and final package.
+"""
+print(readme_snippet)
