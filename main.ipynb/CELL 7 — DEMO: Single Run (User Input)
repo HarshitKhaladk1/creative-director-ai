@@ -1,0 +1,29 @@
+# Demo: orchestrate a single user request
+user_request = "anime volcano destruction aesthetic"
+
+# 1) Trend analysis
+trend_out = trend_agent.run(user_request, top_k=4)
+print("Trend Summary:")
+pprint(trend_out)
+
+# 2) Prompt generation
+concept_brief = f"{user_request} inspired by {', '.join(trend_out['trends'])}"
+prompts = prompt_agent.run(concept_brief, n_variations=6)
+print("\nGenerated Prompts (first 2 shown):")
+pprint(prompts[:2])
+
+# 3) Aesthetic evaluation
+eval_results = aesthetic_agent.run(prompts)
+print("\nTop 3 Evaluations:")
+pprint(eval_results[:3])
+
+# 4) Choose best
+best = eval_results[0] if eval_results else None
+
+# 5) Publish packaging
+if best:
+    package = publisher_agent.run(best)
+    print("\nFinal Package:")
+    pprint(package)
+else:
+    print("No prompts generated.")
