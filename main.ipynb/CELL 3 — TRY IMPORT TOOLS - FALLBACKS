@@ -1,0 +1,87 @@
+# Try importing the tools and memory modules you may already have.
+# If not present, define fallback implementations here (same logic as provided).
+
+# ---- Tools ----
+try:
+    from tools.trend_tool import get_trends
+    from tools.prompt_tool import build_prompt
+    from tools.evaluation_tool import evaluate_prompt, score_prompt
+    from tools.style_tool import apply_style
+    from tools.text_cleaner import clean_text
+    from tools.content_packager import generate_caption, generate_hashtags, generate_pinterest_title, build_leoncmht_package
+    print("Imported tools/ modules.")
+except Exception as e:
+    print("tools/ modules not found — using inline fallback implementations.", str(e))
+
+    import random
+    TREND_DATA = [
+        "Gen-Z Anime", "Moody Cinematic", "Soft Pastel Glow", "Cyber-Grunge Aesthetic",
+        "Dreamcore Fantasy", "Hyperreal Macro Photography", "Dark Romanticism",
+        "Vintage Japanese Anime", "Mystical Floral Glow", "Surreal Dream Aesthetic",
+        "Neon Night City", "Spiritual Mystic Theme", "Minimalist Abstract Art",
+        "Dark Botanical", "Cosmic Fog Atmosphere"
+    ]
+
+    def get_trends(top_k: int = 5):
+        return random.sample(TREND_DATA, top_k)
+
+    STYLE_PRESETS = {
+        "leondreams": " soft glow, dreamy atmosphere, magical realism, high contrast, gentle highlights, subtle neon accents, emotional cinematic framing",
+        "dreamcore": " surreal haze, cloudy light bloom, floating feeling, nostalgic ambience",
+        "dark_aesthetic": " deep shadows, dramatic lighting, dark botanical tones, moody composition",
+        "vintage_anime": " 90s anime film grain, retro palette, soft outlines, emotional storytelling",
+        "hyperreal": " ultra-HD clarity, crisp detail, photorealistic shading, macro texture"
+    }
+
+    def apply_style(prompt: str, style_name: str):
+        style = STYLE_PRESETS.get(style_name.lower(), "")
+        return f"{prompt}, {style} , award-winning artwork"
+
+    def build_prompt(concept: str, style_name: str = "leondreams"):
+        base = (f"{concept}, ultra-detailed artwork, professional lighting, high-definition texture, "
+                f"balanced composition, emotional storytelling, focus on subject, clean background")
+        return apply_style(base, style_name)
+
+    def score_prompt(prompt: str):
+        base_score = min(len(prompt) // 35, 7)
+        bonus = 0
+        keywords = ["cinematic", "glow", "aesthetic", "ultra-detailed", "dreamcore", "vintage"]
+        for word in keywords:
+            if word in prompt.lower():
+                bonus += 1
+        total = base_score + bonus
+        return min(total, 10)
+
+    def evaluate_prompt(prompt: str):
+        score = score_prompt(prompt)
+        if score >= 8:
+            verdict = "Excellent concept with high viral potential."
+        elif score >= 5:
+            verdict = "Good concept but can be more specific or emotional."
+        else:
+            verdict = "Weak concept — needs clearer subject or style."
+        return {"score": score, "verdict": verdict}
+
+    def clean_text(text: str):
+        text = text.replace("\n", " ").strip()
+        while "  " in text:
+            text = text.replace("  ", " ")
+        return text
+
+    def generate_caption(prompt: str, score: int):
+        return (f"Crafted with magic and detail — this artwork concept scores {score}/10 in aesthetic value. "
+                f"Dive into a dreamy visual story.")
+
+    def generate_hashtags():
+        return ["#aiart", "#aesthetic", "#genz", "#surreal", "#digitalart", "#leondreamsai", "#viralart", "#wallpaper", "#trending"]
+
+    def generate_pinterest_title(concept: str):
+        return f"Trending AI Art Concept – {concept.title()}"
+
+    def build_leoncmht_package(prompt: str):
+        return {
+            "caption": "A dreamy aesthetic masterpiece crafted with emotion.",
+            "hashtags": "#leondreamsai #aesthetic #genz #aiart",
+            "music": "Ambient Soft Dreamscape",
+            "board": "LeonDreams AI Collections",
+        }
