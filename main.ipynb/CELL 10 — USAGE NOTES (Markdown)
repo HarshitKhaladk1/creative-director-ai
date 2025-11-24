@@ -1,0 +1,8 @@
+## Usage Notes
+- This notebook simulates the full pre-image generation creative pipeline:
+  - TrendAgent: suggests trending aesthetics
+  - PromptAgent: generates structured prompts
+  - AestheticAgent: scores and ranks prompts
+  - PublisherAgent: builds social-ready content bundles
+- All logic is offline and deterministic (with small randomness for trends).
+- If you already created `tools/` and `memory/` modules in the repo, the notebook will import them. Otherwise it uses safe fallbacks embedded above.
