@@ -1,0 +1,9 @@
+# Setup imports and ensure directories exist
+import os
+import json
+from pprint import pprint
+
+os.makedirs("agents", exist_ok=True)
+os.makedirs("tools", exist_ok=True)
+os.makedirs("memory", exist_ok=True)
+os.makedirs("demo", exist_ok=True)
