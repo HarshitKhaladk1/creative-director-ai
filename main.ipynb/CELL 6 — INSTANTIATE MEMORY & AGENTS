@@ -1,0 +1,9 @@
+# Create memory bank and agent instances
+memory = MemoryBank()
+context_mgr = ContextManager(memory)
+trend_agent = TrendAgent(memory)
+prompt_agent = PromptAgent(memory)
+aesthetic_agent = AestheticAgent(memory)
+publisher_agent = PublisherAgent(memory)
+
+print("Agents and memory initialized.")
