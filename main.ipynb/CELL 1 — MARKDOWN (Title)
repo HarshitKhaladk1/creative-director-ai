@@ -1,0 +1,5 @@
+# CreativeDirector.AI — main.ipynb
+A competition-safe multi-agent orchestration notebook for AI artists.
+- No external APIs
+- Uses local tools & memory (or inline fallbacks)
+- Demo pipeline: Trend → Prompt → Evaluate → Package
