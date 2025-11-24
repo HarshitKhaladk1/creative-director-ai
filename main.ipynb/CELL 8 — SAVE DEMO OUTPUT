@@ -1,0 +1,13 @@
+# Save the demo output to demo/demo_output.json for inclusion in repo or Kaggle submission
+demo_path = "demo/demo_output.json"
+output = {
+    "user_request": user_request,
+    "trend": trend_out,
+    "top_prompts": eval_results[:5],
+    "final_package": package if best else None,
+    "session_history": memory.session.get_history()
+}
+with open(demo_path, "w") as f:
+    json.dump(output, f, indent=2)
+
+print(f"Demo output saved to {demo_path}")
