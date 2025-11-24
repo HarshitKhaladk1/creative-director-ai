@@ -1,0 +1,73 @@
+# Define agent classes (TrendAgent, PromptAgent, AestheticAgent, PublisherAgent)
+# These are simple orchestrators that use tools & memory.
+
+class TrendAgent:
+    def __init__(self, memory_bank):
+        self.memory = memory_bank
+
+    def run(self, user_input: str, top_k: int = 5):
+        trends = get_trends(top_k=top_k)
+        idea = f"For '{user_input}', trending aesthetics: {', '.join(trends)}"
+        self.memory.session.add_history("trend_agent", idea)
+        self.memory.session.last_trends = trends
+        return {"trends": trends, "summary": idea}
+
+
+class PromptAgent:
+    def __init__(self, memory_bank, style_name: str = "leondreams"):
+        self.memory = memory_bank
+        self.style = style_name
+
+    def run(self, concept: str, n_variations: int = 5):
+        prompts = []
+        for i in range(n_variations):
+            # slightly vary the concept with trending modifiers
+            mod = f"{concept} — variation {i+1}"
+            raw = build_prompt(mod, style_name=self.style)
+            cleaned = clean_text(raw)
+            prompts.append(cleaned)
+        self.memory.session.add_history("prompt_agent", f"Generated {len(prompts)} prompts")
+        self.memory.session.last_prompt = prompts
+        return prompts
+
+
+class AestheticAgent:
+    def __init__(self, memory_bank, acceptance_score: int = 8):
+        self.memory = memory_bank
+        self.threshold = acceptance_score
+
+    def run(self, prompts):
+        results = []
+        for p in prompts:
+            eval_res = evaluate_prompt(p)
+            results.append({"prompt": p, "score": eval_res["score"], "verdict": eval_res["verdict"]})
+            # store high-scoring prompts long-term
+            self.memory.store_prompt(p, eval_res["score"])
+        self.memory.session.add_history("aesthetic_agent", f"Evaluated {len(prompts)} prompts")
+        # sort by score desc
+        results_sorted = sorted(results, key=lambda x: x["score"], reverse=True)
+        self.memory.session.last_score = results_sorted[0]["score"] if results_sorted else None
+        return results_sorted
+
+
+class PublisherAgent:
+    def __init__(self, memory_bank):
+        self.memory = memory_bank
+
+    def run(self, best_prompt_record):
+        p = best_prompt_record["prompt"]
+        score = best_prompt_record["score"]
+        caption = generate_caption(p, score)
+        hashtags = generate_hashtags()
+        pinterest_title = generate_pinterest_title(p.split(",")[0])
+        leoncmht = build_leoncmht_package(p)
+        package = {
+            "prompt": p,
+            "score": score,
+            "caption": caption,
+            "hashtags": hashtags,
+            "pinterest_title": pinterest_title,
+            "leoncmht": leoncmht
+        }
+        self.memory.session.add_history("publisher_agent", "Packaged final output")
+        return package
